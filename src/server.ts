@@ -1,6 +1,3 @@
-// pinillananny: the nanny logs when she arrives and leaves, and the page totals the week's hours.
-// Serves the page from ../public and a small JSON API under /api. A PIN guards both.
-
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { readFile, writeFile, rename, mkdir, appendFile } from "node:fs/promises";
 import { join, extname, dirname } from "node:path";
@@ -35,19 +32,14 @@ const TYPES: Record<string, string> = {
 
 const CSP = "default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:; connect-src 'self'";
 
-// ---- data
-
 await mkdir(DATA, { recursive: true });
 
 let days: Days = {};
 try {
   days = JSON.parse(await readFile(DAYS_FILE, "utf8")) as Days;
 } catch {
-  // First start, no data yet.
 }
 
-// A random secret signs the login cookie. Changing the PIN also changes the
-// cookie value, so every phone has to log in again.
 let secret: Buffer;
 try {
   secret = await readFile(join(DATA, "secret"));
@@ -57,8 +49,6 @@ try {
 }
 const TOKEN = createHmac("sha256", secret).update(PIN).digest("base64url");
 
-// Writes are rare, so save the whole file each time, through a temp file and
-// rename so a crash can't leave half a file. Chain saves so they never overlap.
 let saving = Promise.resolve();
 function save() {
   const text = JSON.stringify(days, null, 1);
@@ -68,8 +58,6 @@ function save() {
   });
   return saving;
 }
-
-// ---- login
 
 function cookies(req: IncomingMessage): Record<string, string> {
   const out: Record<string, string> = {};
@@ -90,8 +78,6 @@ function loggedIn(req: IncomingMessage) {
   return same(cookies(req)[COOKIE] ?? "", TOKEN);
 }
 
-// Wrong PINs: 5 per address per 15 minutes, and 30 in total per hour, so
-// guessing a 4-digit PIN takes weeks even from many addresses.
 const failsByIp = new Map<string, number[]>();
 let failsAll: number[] = [];
 function tooManyFails(ip: string) {
@@ -106,8 +92,6 @@ function recordFail(ip: string) {
   failsByIp.get(ip)!.push(now);
   failsAll.push(now);
 }
-
-// ---- HTTP helpers
 
 function send(res: ServerResponse, status: number, body: unknown, headers: Record<string, string> = {}) {
   res.writeHead(status, { "content-type": "application/json", "cache-control": "no-store", ...headers });
@@ -146,7 +130,6 @@ async function api(req: IncomingMessage, res: ServerResponse, url: URL) {
 
   if (!loggedIn(req)) return send(res, 401, { error: "Log in first." });
 
-  // GET /api/days?from=2026-11-23&to=2026-11-29
   if (url.pathname === "/api/days" && req.method === "GET") {
     const from = url.searchParams.get("from") ?? "";
     const to = url.searchParams.get("to") ?? "";
@@ -156,7 +139,6 @@ async function api(req: IncomingMessage, res: ServerResponse, url: URL) {
     return send(res, 200, out);
   }
 
-  // PUT /api/days/2026-11-24  {"in":"08:00","out":"17:30","miles":12}, any may be null
   const m = /^\/api\/days\/(\d{4}-\d{2}-\d{2})$/.exec(url.pathname);
   if (m && req.method === "PUT") {
     const date = m[1];
@@ -167,7 +149,6 @@ async function api(req: IncomingMessage, res: ServerResponse, url: URL) {
     if (after) days[date] = after;
     else delete days[date];
     await save();
-    // A record of every change, in case a time is ever questioned.
     await appendFile(LOG_FILE, JSON.stringify({ at: new Date().toISOString(), date, before, after }) + "\n");
     return send(res, 200, after ?? {});
   }

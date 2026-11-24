@@ -18,7 +18,7 @@ test("dayMinutes needs both times with out after in", () => {
 });
 
 test("roundHours rounds to the hundredth", () => {
-  assert.equal(roundHours(455), "7.58"); // 7.5833
+  assert.equal(roundHours(455), "7.58");
   assert.equal(roundHours(20), "0.33");
   assert.equal(roundHours(40), "0.67");
   assert.equal(roundHours(570), "9.50");
@@ -26,7 +26,6 @@ test("roundHours rounds to the hundredth", () => {
 });
 
 test("totalHours adds minutes before rounding", () => {
-  // Three days of 20 minutes each: rounding each day first would give 0.99.
   const day = { in: "08:00", out: "08:20" };
   assert.equal(totalHours([day, day, day]), "1.00");
   assert.equal(
@@ -41,9 +40,9 @@ test("totalHours adds minutes before rounding", () => {
 });
 
 test("weeks start on Monday", () => {
-  assert.equal(isoDate(mondayOf(new Date(2026, 10, 24))), "2026-11-23"); // Tuesday
-  assert.equal(isoDate(mondayOf(new Date(2026, 10, 23))), "2026-11-23"); // Monday
-  assert.equal(isoDate(mondayOf(new Date(2026, 10, 29))), "2026-11-23"); // Sunday
+  assert.equal(isoDate(mondayOf(new Date(2026, 10, 24))), "2026-11-23");
+  assert.equal(isoDate(mondayOf(new Date(2026, 10, 23))), "2026-11-23");
+  assert.equal(isoDate(mondayOf(new Date(2026, 10, 29))), "2026-11-23");
   assert.deepEqual(weekDates(new Date(2026, 11, 28)), [
     "2026-12-28", "2026-12-29", "2026-12-30", "2026-12-31", "2027-01-01", "2027-01-02", "2027-01-03",
   ]);

@@ -4,11 +4,8 @@ const $ = (id) => document.getElementById(id);
 const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 let monday = mondayOf(new Date());
-// True while the current week is on screen, so the page follows into next week.
 let followToday = true;
-let days = {}; // "YYYY-MM-DD" -> { in, out } for the week on screen
-
-// ---- server
+let days = {};
 
 async function call(method, path, body) {
   const res = await fetch(path, {
@@ -38,8 +35,6 @@ async function saveDay(date, day) {
   render();
 }
 
-// ---- formatting
-
 function to12h(time) {
   if (!time) return "";
   const [h, m] = time.split(":").map(Number);
@@ -65,8 +60,6 @@ function toast(text) {
   toastTimer = setTimeout(() => el.classList.remove("show"), 1800);
 }
 
-// ---- drawing
-
 function render() {
   const dates = weekDates(monday);
   const today = isoDate(new Date());
@@ -87,7 +80,7 @@ function render() {
   }
 
   const list = $("days");
-  const focused = document.activeElement?.dataset?.key; // keep the field being edited
+  const focused = document.activeElement?.dataset?.key;
   list.replaceChildren(...dates.map((date, i) => dayRow(date, DAY_NAMES[i], date === today)));
   if (focused) list.querySelector(`[data-key="${focused}"]`)?.focus();
 
@@ -172,8 +165,6 @@ function dayRow(date, name, isToday) {
   return li;
 }
 
-// ---- actions
-
 async function punch(key) {
   const today = isoDate(new Date());
   const entry = days[today] ?? { in: null, out: null, miles: null };
@@ -194,7 +185,6 @@ async function copyTotal(button) {
   try {
     await navigator.clipboard.writeText(text);
   } catch {
-    // Older browsers: copy through a hidden text field.
     const ta = document.createElement("textarea");
     ta.value = text;
     ta.setAttribute("readonly", "");
@@ -215,8 +205,6 @@ function moveWeek(weeks) {
   followToday = isoDate(monday) === isoDate(mondayOf(new Date()));
   loadWeek().catch(() => {});
 }
-
-// ---- login and start
 
 function showLogin() {
   $("app").hidden = true;
@@ -247,8 +235,6 @@ $("this-week").addEventListener("click", () => {
   loadWeek().catch(() => {});
 });
 
-// Pick up changes made on the other phone, and roll over to a new day or
-// week, whenever the page comes back into view. Skip it mid-edit.
 function refresh() {
   if (document.hidden || $("app").hidden) return;
   if (document.activeElement?.tagName === "INPUT") return;

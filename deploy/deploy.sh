@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-# Deploys the main branch of pinillananny on server1. Run as pinilla:  ~/pinillananny/deploy/deploy.sh
-# Pulls main into /opt/pinillananny, runs the tests and
-# restarts the service. Stops at the first failure.
 set -euo pipefail
 
 APP=/opt/pinillananny
@@ -19,7 +16,6 @@ git fetch origin main
 git checkout --detach origin/main
 echo "Deploying $(git log -1 --format='%h %s')"
 
-# No dependencies to install.
 npm test
 
 sudo systemctl restart pinillananny

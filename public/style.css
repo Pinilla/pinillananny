@@ -46,7 +46,6 @@ main {
 h1 { font-size: 1.3rem; margin: 0; }
 button { font: inherit; color: inherit; cursor: pointer; }
 
-/* login */
 .login { padding-top: 15vh; text-align: center; }
 .login form { display: grid; gap: 12px; max-width: 260px; margin: 24px auto 0; }
 .login label { color: var(--muted); }
@@ -60,7 +59,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 @media (prefers-color-scheme: dark) { .primary { color: #10233a; } }
 
-/* header */
 .top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 16px; }
 .week-nav { display: flex; align-items: center; gap: 4px; font-weight: 600; }
 .icon-btn {
@@ -69,7 +67,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 .link { flex-basis: 100%; text-align: right; background: none; border: 0; color: var(--accent); padding: 0; }
 
-/* today */
 .today { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-bottom: 16px; }
 .today-label { margin: 0 0 12px; color: var(--muted); }
 .punch { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -82,7 +79,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .leave { background: var(--leave); }
 .today-status { margin: 12px 0 0; min-height: 1.4em; text-align: center; }
 
-/* days */
 .day-head, .day {
   display: grid;
   grid-template-columns: 3.4rem 1fr 1fr 3.2rem 2.9rem;
@@ -107,11 +103,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .day .hours { font-variant-numeric: tabular-nums; }
 .day .miles { text-align: center; -moz-appearance: textfield; }
 .day .miles::-webkit-inner-spin-button, .day .miles::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-/* The clock icon crowds the row; tapping the field still opens the picker on phones. */
 .day input[type=time]::-webkit-calendar-picker-indicator { display: none; }
 .day.bad .hours { color: var(--error); }
 
-/* totals */
 .totals { display: grid; grid-template-columns: 3fr 2fr; gap: 12px; }
 .total {
   width: 100%; display: grid; justify-items: center; gap: 2px;
