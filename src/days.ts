@@ -1,6 +1,6 @@
 // Checks a day's times before the server saves them.
 
-import { toMinutes } from "../public/hours.js";
+import { toMinutes, parseMiles } from "../public/hours.js";
 
 export type Day = { in: string | null; out: string | null; miles: number | null };
 export type Days = Record<string, Day>;
@@ -19,10 +19,9 @@ export function checkDay(date: string, body: unknown): { day: Day } | { error: s
   }
   const miles = b.miles;
   if (miles !== null && miles !== undefined && miles !== "") {
-    if (typeof miles !== "number" || !Number.isInteger(miles) || miles < 0 || miles > 2000) {
-      return { error: "Miles must be a whole number from 0 to 2000." };
-    }
-    day.miles = miles;
+    const parsed = typeof miles === "number" ? parseMiles(miles) : null;
+    if (parsed === null) return { error: "Miles must be a number from 0 to 2000." };
+    day.miles = parsed;
   }
   // Allow "out" before "in" to be saved, since someone fixing a typo may change
   // one field at a time. The page flags it and leaves the day out of the total.

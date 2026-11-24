@@ -31,11 +31,29 @@ export function roundHours(minutes) {
   return (Math.round((minutes / 60) * 100) / 100).toFixed(2);
 }
 
-/** Total miles for a list of day entries. Days without miles count as 0. */
+/**
+ * Miles as a number rounded to the hundredth, or null for a blank, negative,
+ * over-2000 or non-numeric value. Accepts numbers and strings like "12.5".
+ */
+export function parseMiles(value) {
+  if (value === null || value === undefined || value === "") return null;
+  const n = typeof value === "number" ? value : Number(String(value).trim());
+  if (!Number.isFinite(n) || n < 0 || n > 2000) return null;
+  return Math.round(n * 100) / 100;
+}
+
+/**
+ * Total miles for a list of day entries, as a string with no trailing zeros
+ * ("42", "42.5", "42.25"). Days without miles count as 0. It adds whole
+ * hundredths so 0.1 + 0.2 comes out as 0.3.
+ */
 export function totalMiles(entries) {
-  let miles = 0;
-  for (const e of entries) if (Number.isInteger(e?.miles)) miles += e.miles;
-  return miles;
+  let hundredths = 0;
+  for (const e of entries) {
+    const m = parseMiles(e?.miles);
+    if (m !== null) hundredths += Math.round(m * 100);
+  }
+  return String(hundredths / 100);
 }
 
 /** "YYYY-MM-DD" for a Date in the browser's local time zone. */

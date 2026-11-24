@@ -9,7 +9,7 @@ A weekly time sheet for our nanny. She taps "I'm here!" when she arrives and "I'
 - Any time on any day can be typed or changed by hand. Changes save as soon as a field loses focus.
 - A day counts toward the total only when it has both times and "Left" is after "Arrived". The page lists any day that's missing a time.
 - The total adds up whole minutes first and rounds once at the end. A day's own hours are rounded on their own, so the day figures can add up to 0.01 more or less than the total. The total is the accurate one.
-- Miles are whole numbers per day. Days with no miles count as 0.
+- Miles per day can have decimals and are rounded to the hundredth. Days with no miles count as 0.
 - On iPhone, Share > Add to Home Screen gives it an app icon.
 
 ## Login

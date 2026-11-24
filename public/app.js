@@ -1,4 +1,4 @@
-import { dayMinutes, totalHours, totalMiles, roundHours, isoDate, mondayOf, weekDates } from "./hours.js";
+import { dayMinutes, totalHours, totalMiles, parseMiles, roundHours, isoDate, mondayOf, weekDates } from "./hours.js";
 
 const $ = (id) => document.getElementById(id);
 const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -93,7 +93,7 @@ function render() {
 
   const entries = dates.map((d) => days[d]).filter(Boolean);
   $("total-value").textContent = totalHours(entries);
-  $("miles-value").textContent = String(totalMiles(entries));
+  $("miles-value").textContent = totalMiles(entries);
 
   const bad = dates.filter((d) => days[d]?.in && days[d]?.out && dayMinutes(days[d]) === null);
   const open = dates.filter((d) => d !== today && (!days[d]?.in !== !days[d]?.out));
@@ -136,19 +136,19 @@ function dayRow(date, name, isToday) {
 
   const miles = document.createElement("input");
   miles.type = "number";
-  miles.inputMode = "numeric";
+  miles.inputMode = "decimal";
   miles.min = "0";
   miles.max = "2000";
-  miles.step = "1";
+  miles.step = "any";
   miles.className = "miles";
   miles.value = entry.miles ?? "";
   miles.dataset.key = `${date}:miles`;
   miles.setAttribute("aria-label", `Miles ${name} ${shortDate(date)}`);
   miles.addEventListener("change", async () => {
     const text = miles.value.trim();
-    const value = text === "" ? null : Number(text);
-    if (value !== null && !(Number.isInteger(value) && value >= 0 && value <= 2000)) {
-      toast("Miles must be a whole number");
+    const value = text === "" ? null : parseMiles(text);
+    if (text !== "" && value === null) {
+      toast("Miles must be a number from 0 to 2000");
       miles.value = entry.miles ?? "";
       return;
     }

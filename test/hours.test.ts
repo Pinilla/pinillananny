@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { toMinutes, dayMinutes, totalHours, totalMiles, roundHours, mondayOf, weekDates, isoDate } from "../public/hours.js";
+import { toMinutes, dayMinutes, totalHours, totalMiles, parseMiles, roundHours, mondayOf, weekDates, isoDate } from "../public/hours.js";
 import { checkDay } from "../src/days.ts";
 
 test("toMinutes reads HH:MM and rejects anything else", () => {
@@ -54,6 +54,8 @@ test("checkDay accepts valid times and blanks", () => {
   assert.deepEqual(checkDay("2026-11-24", { in: null, out: null }), { day: { in: null, out: null, miles: null } });
   assert.deepEqual(checkDay("2026-11-24", { miles: 12 }), { day: { in: null, out: null, miles: 12 } });
   assert.deepEqual(checkDay("2026-11-24", { miles: 0 }), { day: { in: null, out: null, miles: 0 } });
+  assert.deepEqual(checkDay("2026-11-24", { miles: 2.5 }), { day: { in: null, out: null, miles: 2.5 } });
+  assert.deepEqual(checkDay("2026-11-24", { miles: 3.456 }), { day: { in: null, out: null, miles: 3.46 } });
 });
 
 test("checkDay rejects bad dates and times", () => {
@@ -61,10 +63,19 @@ test("checkDay rejects bad dates and times", () => {
   assert.ok("error" in checkDay("2026-11-24", { in: "8am" }));
   assert.ok("error" in checkDay("2026-11-24", { in: 800 }));
   assert.ok("error" in checkDay("2026-11-24", null));
-  for (const miles of [-1, 2.5, "12", 2001]) assert.ok("error" in checkDay("2026-11-24", { miles }), String(miles));
+  for (const miles of [-1, "12", 2001, Infinity, NaN, true]) assert.ok("error" in checkDay("2026-11-24", { miles }), String(miles));
 });
 
-test("totalMiles adds whole miles and skips blanks", () => {
-  assert.equal(totalMiles([{ miles: 12 }, { miles: null }, {}, { miles: 30 }, { miles: 0 }]), 42);
-  assert.equal(totalMiles([]), 0);
+test("totalMiles adds miles and skips blanks", () => {
+  assert.equal(totalMiles([{ miles: 12 }, { miles: null }, {}, { miles: 30 }, { miles: 0 }]), "42");
+  assert.equal(totalMiles([{ miles: 12.5 }, { miles: 3.25 }]), "15.75");
+  assert.equal(totalMiles([{ miles: 0.1 }, { miles: 0.2 }]), "0.3");
+  assert.equal(totalMiles([]), "0");
+});
+
+test("parseMiles reads numbers and text, rounded to the hundredth", () => {
+  assert.equal(parseMiles("12.5"), 12.5);
+  assert.equal(parseMiles(" 7 "), 7);
+  assert.equal(parseMiles(1.005 + 0.001), 1.01);
+  for (const bad of ["", null, undefined, "abc", "-1", 2000.5]) assert.equal(parseMiles(bad), null, String(bad));
 });
