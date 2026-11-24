@@ -1,0 +1,12 @@
+{
+  "name": "Nanny hours",
+  "short_name": "Nanny hours",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f3ee",
+  "theme_color": "#2c5d8f",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

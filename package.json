@@ -1,0 +1,13 @@
+{
+  "name": "pinillananny",
+  "version": "0.1.0",
+  "description": "A weekly time sheet for our nanny, with arrive and leave buttons and a copyable hours total.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "start": "node src/server.ts",
+    "test": "node --test \"test/**/*.test.ts\""
+  }
+}

@@ -1,0 +1,27 @@
+[Unit]
+Description=pinillananny, the nanny's weekly time sheet
+After=network.target
+
+[Service]
+Type=simple
+User=pinillananny
+Group=pinillananny
+WorkingDirectory=/opt/pinillananny
+Environment=NODE_ENV=production
+Environment=HOST=127.0.0.1
+Environment=PORT=3300
+Environment=NANNY_DATA=/var/lib/pinillananny
+# NANNY_PIN lives here, readable only by root.
+EnvironmentFile=/etc/pinillananny.env
+ExecStart=/opt/node/bin/node src/server.ts
+Restart=on-failure
+RestartSec=5
+
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/pinillananny
+
+[Install]
+WantedBy=multi-user.target
