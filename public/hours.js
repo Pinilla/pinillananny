@@ -6,13 +6,17 @@ export function toMinutes(time) {
 export function dayMinutes(entry) {
   const start = toMinutes(entry?.in);
   const end = toMinutes(entry?.out);
-  if (start === null || end === null || end <= start) return null;
+  if (start === null || end === null || end <= start) {
+    return null;
+  }
   return end - start;
 }
 
 export function totalHours(entries) {
   let minutes = 0;
-  for (const e of entries) minutes += dayMinutes(e) ?? 0;
+  for (const e of entries) {
+    minutes += dayMinutes(e) ?? 0;
+  }
   return roundHours(minutes);
 }
 
@@ -21,9 +25,13 @@ export function roundHours(minutes) {
 }
 
 export function parseMiles(value) {
-  if (value === null || value === undefined || value === "") return null;
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
   const n = typeof value === "number" ? value : Number(String(value).trim());
-  if (!Number.isFinite(n) || n < 0 || n > 2000) return null;
+  if (!Number.isFinite(n) || n < 0 || n > 2000) {
+    return null;
+  }
   return Math.round(n * 100) / 100;
 }
 
@@ -31,7 +39,9 @@ export function totalMiles(entries) {
   let hundredths = 0;
   for (const e of entries) {
     const m = parseMiles(e?.miles);
-    if (m !== null) hundredths += Math.round(m * 100);
+    if (m !== null) {
+      hundredths += Math.round(m * 100);
+    }
   }
   return String(hundredths / 100);
 }

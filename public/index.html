@@ -1,71 +1,81 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="robots" content="noindex, nofollow">
-  <meta name="theme-color" content="#f6f3ee" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#1b1a18" media="(prefers-color-scheme: dark)">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Nanny hours">
-  <title>Nanny hours</title>
-  <link rel="icon" href="icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="icon.png">
-  <link rel="manifest" href="app.webmanifest">
-  <link rel="stylesheet" href="style.css">
-  <script type="module" src="app.js"></script>
-</head>
-<body>
-  <main id="login" class="login" hidden>
-    <h1>Nanny hours</h1>
-    <form id="login-form">
-      <label for="pin">PIN</label>
-      <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" pattern="[0-9]*" maxlength="8" required>
-      <button type="submit" class="primary">Unlock</button>
-      <p id="login-error" class="error" role="alert"></p>
-    </form>
-  </main>
-
-  <main id="app" hidden>
-    <header class="top">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#f6f3ee" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1b1a18" media="(prefers-color-scheme: dark)" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Nanny hours" />
+    <title>Nanny hours</title>
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="icon.png" />
+    <link rel="manifest" href="app.webmanifest" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <main id="login" class="login" hidden>
       <h1>Nanny hours</h1>
-      <nav class="week-nav" aria-label="Week">
-        <button id="prev" class="icon-btn" aria-label="Previous week">‹</button>
-        <span id="week-label"></span>
-        <button id="next" class="icon-btn" aria-label="Next week">›</button>
-      </nav>
-      <button id="this-week" class="link" hidden>Back to this week</button>
-    </header>
+      <form id="login-form">
+        <label for="pin">PIN</label>
+        <input
+          id="pin"
+          type="password"
+          inputmode="numeric"
+          autocomplete="current-password"
+          pattern="[0-9]*"
+          maxlength="8"
+          required
+        />
+        <button type="submit" class="primary">Unlock</button>
+        <p id="login-error" class="error" role="alert"></p>
+      </form>
+    </main>
 
-    <section id="today" class="today" hidden>
-      <p id="today-label" class="today-label"></p>
-      <div class="punch">
-        <button id="arrive" class="arrive">I'm here!</button>
-        <button id="leave" class="leave">I'm leaving!</button>
+    <main id="app" hidden>
+      <header class="top">
+        <h1>Nanny hours</h1>
+        <nav class="week-nav" aria-label="Week">
+          <button id="prev" class="icon-btn" aria-label="Previous week">‹</button>
+          <span id="week-label"></span>
+          <button id="next" class="icon-btn" aria-label="Next week">›</button>
+        </nav>
+        <button id="this-week" class="link" hidden>Back to this week</button>
+      </header>
+
+      <section id="today" class="today" hidden>
+        <p id="today-label" class="today-label"></p>
+        <div class="punch">
+          <button id="arrive" class="arrive">I'm here!</button>
+          <button id="leave" class="leave">I'm leaving!</button>
+        </div>
+        <p id="today-status" class="today-status" aria-live="polite"></p>
+      </section>
+
+      <section aria-label="Days">
+        <div class="day-head" aria-hidden="true">
+          <span></span><span>Arrived</span><span>Left</span><span>Miles</span><span>Hours</span>
+        </div>
+        <ol id="days" class="days"></ol>
+      </section>
+
+      <div class="totals">
+        <button id="total" class="total" data-copy="total-value">
+          <span class="total-label">Hours this week</span>
+          <span id="total-value" class="total-value">0.00</span>
+          <span class="total-hint">Tap to copy</span>
+        </button>
+        <button id="miles-total" class="total" data-copy="miles-value">
+          <span class="total-label">Miles</span>
+          <span id="miles-value" class="total-value">0</span>
+          <span class="total-hint">Tap to copy</span>
+        </button>
       </div>
-      <p id="today-status" class="today-status" aria-live="polite"></p>
-    </section>
+      <p id="warning" class="error" role="alert"></p>
+    </main>
 
-    <section aria-label="Days">
-      <div class="day-head" aria-hidden="true"><span></span><span>Arrived</span><span>Left</span><span>Miles</span><span>Hours</span></div>
-      <ol id="days" class="days"></ol>
-    </section>
-
-    <div class="totals">
-      <button id="total" class="total" data-copy="total-value">
-        <span class="total-label">Hours this week</span>
-        <span id="total-value" class="total-value">0.00</span>
-        <span class="total-hint">Tap to copy</span>
-      </button>
-      <button id="miles-total" class="total" data-copy="miles-value">
-        <span class="total-label">Miles</span>
-        <span id="miles-value" class="total-value">0</span>
-        <span class="total-hint">Tap to copy</span>
-      </button>
-    </div>
-    <p id="warning" class="error" role="alert"></p>
-  </main>
-
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-</body>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </body>
 </html>

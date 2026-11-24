@@ -30,15 +30,15 @@ const TYPES: Record<string, string> = {
   ".png": "image/png",
 };
 
-const CSP = "default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:; connect-src 'self'";
+const CSP =
+  "default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:; connect-src 'self'";
 
 await mkdir(DATA, { recursive: true });
 
 let days: Days = {};
 try {
   days = JSON.parse(await readFile(DAYS_FILE, "utf8")) as Days;
-} catch {
-}
+} catch {}
 
 let secret: Buffer;
 try {
@@ -63,7 +63,9 @@ function cookies(req: IncomingMessage): Record<string, string> {
   const out: Record<string, string> = {};
   for (const part of (req.headers.cookie ?? "").split(";")) {
     const i = part.indexOf("=");
-    if (i > 0) out[part.slice(0, i).trim()] = part.slice(i + 1).trim();
+    if (i > 0) {
+      out[part.slice(0, i).trim()] = part.slice(i + 1).trim();
+    }
   }
   return out;
 }
@@ -93,18 +95,31 @@ function recordFail(ip: string) {
   failsAll.push(now);
 }
 
-function send(res: ServerResponse, status: number, body: unknown, headers: Record<string, string> = {}) {
-  res.writeHead(status, { "content-type": "application/json", "cache-control": "no-store", ...headers });
+function send(
+  res: ServerResponse,
+  status: number,
+  body: unknown,
+  headers: Record<string, string> = {},
+) {
+  res.writeHead(status, {
+    "content-type": "application/json",
+    "cache-control": "no-store",
+    ...headers,
+  });
   res.end(JSON.stringify(body));
 }
 
 async function readJson(req: IncomingMessage): Promise<unknown> {
-  if (!(req.headers["content-type"] ?? "").startsWith("application/json")) throw new Error("expected JSON");
+  if (!(req.headers["content-type"] ?? "").startsWith("application/json")) {
+    throw new Error("expected JSON");
+  }
   let size = 0;
   const chunks: Buffer[] = [];
   for await (const chunk of req) {
     size += chunk.length;
-    if (size > 10_000) throw new Error("too large");
+    if (size > 10_000) {
+      throw new Error("too large");
+    }
     chunks.push(chunk);
   }
   return JSON.parse(Buffer.concat(chunks).toString("utf8"));
@@ -116,26 +131,41 @@ async function api(req: IncomingMessage, res: ServerResponse, url: URL) {
   const ip = (req.headers["x-real-ip"] as string) ?? req.socket.remoteAddress ?? "";
 
   if (url.pathname === "/api/login" && req.method === "POST") {
-    if (tooManyFails(ip)) return send(res, 429, { error: "Too many wrong PINs. Try again in 15 minutes." });
+    if (tooManyFails(ip)) {
+      return send(res, 429, { error: "Too many wrong PINs. Try again in 15 minutes." });
+    }
     const body = (await readJson(req)) as { pin?: unknown };
     if (typeof body.pin !== "string" || !same(body.pin, PIN)) {
       recordFail(ip);
       return send(res, 401, { error: "That PIN isn't right." });
     }
     const secure = req.headers["x-forwarded-proto"] === "https" ? "; Secure" : "";
-    return send(res, 200, { ok: true }, {
-      "set-cookie": `${COOKIE}=${TOKEN}; Path=/; Max-Age=${YEAR}; HttpOnly; SameSite=Strict${secure}`,
-    });
+    return send(
+      res,
+      200,
+      { ok: true },
+      {
+        "set-cookie": `${COOKIE}=${TOKEN}; Path=/; Max-Age=${YEAR}; HttpOnly; SameSite=Strict${secure}`,
+      },
+    );
   }
 
-  if (!loggedIn(req)) return send(res, 401, { error: "Log in first." });
+  if (!loggedIn(req)) {
+    return send(res, 401, { error: "Log in first." });
+  }
 
   if (url.pathname === "/api/days" && req.method === "GET") {
     const from = url.searchParams.get("from") ?? "";
     const to = url.searchParams.get("to") ?? "";
-    if (!DATE.test(from) || !DATE.test(to)) return send(res, 400, { error: "from and to must be YYYY-MM-DD" });
+    if (!DATE.test(from) || !DATE.test(to)) {
+      return send(res, 400, { error: "from and to must be YYYY-MM-DD" });
+    }
     const out: Days = {};
-    for (const [date, day] of Object.entries(days)) if (date >= from && date <= to) out[date] = day;
+    for (const [date, day] of Object.entries(days)) {
+      if (date >= from && date <= to) {
+        out[date] = day;
+      }
+    }
     return send(res, 200, out);
   }
 
@@ -143,13 +173,22 @@ async function api(req: IncomingMessage, res: ServerResponse, url: URL) {
   if (m && req.method === "PUT") {
     const date = m[1];
     const checked = checkDay(date, await readJson(req));
-    if ("error" in checked) return send(res, 400, checked);
+    if ("error" in checked) {
+      return send(res, 400, checked);
+    }
     const before = days[date] ?? null;
-    const after: Day | null = checked.day.in || checked.day.out || checked.day.miles !== null ? checked.day : null;
-    if (after) days[date] = after;
-    else delete days[date];
+    const after: Day | null =
+      checked.day.in || checked.day.out || checked.day.miles !== null ? checked.day : null;
+    if (after) {
+      days[date] = after;
+    } else {
+      delete days[date];
+    }
     await save();
-    await appendFile(LOG_FILE, JSON.stringify({ at: new Date().toISOString(), date, before, after }) + "\n");
+    await appendFile(
+      LOG_FILE,
+      JSON.stringify({ at: new Date().toISOString(), date, before, after }) + "\n",
+    );
     return send(res, 200, after ?? {});
   }
 
@@ -158,7 +197,9 @@ async function api(req: IncomingMessage, res: ServerResponse, url: URL) {
 
 async function serveFile(res: ServerResponse, pathname: string) {
   const name = pathname === "/" ? "index.html" : pathname.slice(1);
-  if (!/^[a-z0-9-]+\.[a-z]+$/.test(name)) return send(res, 404, { error: "not found" });
+  if (!/^[a-z0-9-]+\.[a-z]+$/.test(name)) {
+    return send(res, 404, { error: "not found" });
+  }
   try {
     const body = await readFile(join(PUBLIC, name));
     res.writeHead(200, {
@@ -177,13 +218,21 @@ async function serveFile(res: ServerResponse, pathname: string) {
 const server = createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", "http://localhost");
   try {
-    if (url.pathname === "/healthz") return send(res, 200, { ok: true });
-    if (url.pathname.startsWith("/api/")) return await api(req, res, url);
-    if (req.method !== "GET" && req.method !== "HEAD") return send(res, 405, { error: "method not allowed" });
+    if (url.pathname === "/healthz") {
+      return send(res, 200, { ok: true });
+    }
+    if (url.pathname.startsWith("/api/")) {
+      return await api(req, res, url);
+    }
+    if (req.method !== "GET" && req.method !== "HEAD") {
+      return send(res, 405, { error: "method not allowed" });
+    }
     return await serveFile(res, url.pathname);
   } catch (err) {
     console.error(err);
-    if (!res.headersSent) send(res, 400, { error: "bad request" });
+    if (!res.headersSent) {
+      send(res, 400, { error: "bad request" });
+    }
   }
 });
 
