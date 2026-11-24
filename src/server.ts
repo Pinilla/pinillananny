@@ -156,14 +156,14 @@ async function api(req: IncomingMessage, res: ServerResponse, url: URL) {
     return send(res, 200, out);
   }
 
-  // PUT /api/days/2026-11-24  {"in":"08:00","out":"17:30"}, either may be null
+  // PUT /api/days/2026-11-24  {"in":"08:00","out":"17:30","miles":12}, any may be null
   const m = /^\/api\/days\/(\d{4}-\d{2}-\d{2})$/.exec(url.pathname);
   if (m && req.method === "PUT") {
     const date = m[1];
     const checked = checkDay(date, await readJson(req));
     if ("error" in checked) return send(res, 400, checked);
     const before = days[date] ?? null;
-    const after: Day | null = checked.day.in || checked.day.out ? checked.day : null;
+    const after: Day | null = checked.day.in || checked.day.out || checked.day.miles !== null ? checked.day : null;
     if (after) days[date] = after;
     else delete days[date];
     await save();

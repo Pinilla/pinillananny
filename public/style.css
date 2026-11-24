@@ -85,12 +85,13 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* days */
 .day-head, .day {
   display: grid;
-  grid-template-columns: 4.6rem 1fr 1fr 3.2rem;
-  gap: 8px;
+  grid-template-columns: 3.4rem 1fr 1fr 3.2rem 2.9rem;
+  gap: 6px;
   align-items: center;
 }
 .day-head { font-size: 0.85rem; color: var(--muted); padding: 0 12px 4px; }
 .day-head span:last-child, .day .hours { text-align: right; }
+.day-head span:nth-child(4) { text-align: center; }
 .days { list-style: none; margin: 0 0 16px; padding: 0; background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
 .day { padding: 10px 12px; border-top: 1px solid var(--line); }
 .day:first-child { border-top: 0; }
@@ -98,21 +99,26 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .day .name { font-weight: 600; line-height: 1.15; }
 .day .name small { display: block; font-weight: 400; color: var(--muted); font-size: 0.8rem; }
 .day input {
-  width: 100%; min-width: 0; font: inherit; font-size: 0.95rem;
-  padding: 6px 4px; border: 1px solid var(--line); border-radius: 8px;
+  width: 100%; min-width: 0; font: inherit; font-size: 0.9rem;
+  padding: 6px 3px; border: 1px solid var(--line); border-radius: 8px;
   background: var(--bg); color: var(--text);
 }
 .day input:invalid, .day.bad input { border-color: var(--error); }
 .day .hours { font-variant-numeric: tabular-nums; }
+.day .miles { text-align: center; -moz-appearance: textfield; }
+.day .miles::-webkit-inner-spin-button, .day .miles::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+/* The clock icon crowds the row; tapping the field still opens the picker on phones. */
+.day input[type=time]::-webkit-calendar-picker-indicator { display: none; }
 .day.bad .hours { color: var(--error); }
 
-/* total */
+/* totals */
+.totals { display: grid; grid-template-columns: 3fr 2fr; gap: 12px; }
 .total {
   width: 100%; display: grid; justify-items: center; gap: 2px;
   padding: 18px; border: 2px solid var(--accent); border-radius: 16px; background: var(--card);
 }
 .total:active { transform: scale(0.99); }
-.total-label { color: var(--muted); }
+.total-label { color: var(--muted); white-space: nowrap; }
 .total-value { font-size: 2.8rem; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
 .total-hint { color: var(--accent); font-size: 0.9rem; }
 
@@ -127,6 +133,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
 @media (max-width: 380px) {
-  .day-head, .day { grid-template-columns: 3.6rem 1fr 1fr 2.8rem; gap: 6px; }
-  .day input { font-size: 0.85rem; padding: 6px 2px; }
+  .day-head, .day { grid-template-columns: 3rem 1fr 1fr 2.6rem 2.6rem; gap: 4px; }
+  .day input { font-size: 0.8rem; padding: 6px 2px; }
+  .total-value { font-size: 2.2rem; }
 }

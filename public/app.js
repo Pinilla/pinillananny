@@ -1,4 +1,4 @@
-import { dayMinutes, totalHours, roundHours, isoDate, mondayOf, weekDates } from "./hours.js";
+import { dayMinutes, totalHours, totalMiles, roundHours, isoDate, mondayOf, weekDates } from "./hours.js";
 
 const $ = (id) => document.getElementById(id);
 const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -33,7 +33,7 @@ async function loadWeek() {
 
 async function saveDay(date, day) {
   const saved = await call("PUT", `/api/days/${date}`, day);
-  if (saved.in || saved.out) days[date] = saved;
+  if (saved.in || saved.out || saved.miles != null) days[date] = saved;
   else delete days[date];
   render();
 }
@@ -93,6 +93,7 @@ function render() {
 
   const entries = dates.map((d) => days[d]).filter(Boolean);
   $("total-value").textContent = totalHours(entries);
+  $("miles-value").textContent = String(totalMiles(entries));
 
   const bad = dates.filter((d) => days[d]?.in && days[d]?.out && dayMinutes(days[d]) === null);
   const open = dates.filter((d) => d !== today && (!days[d]?.in !== !days[d]?.out));
@@ -103,7 +104,7 @@ function render() {
 }
 
 function dayRow(date, name, isToday) {
-  const entry = days[date] ?? { in: null, out: null };
+  const entry = days[date] ?? { in: null, out: null, miles: null };
   const li = document.createElement("li");
   li.className = "day" + (isToday ? " is-today" : "");
 
@@ -133,6 +134,33 @@ function dayRow(date, name, isToday) {
     return el;
   };
 
+  const miles = document.createElement("input");
+  miles.type = "number";
+  miles.inputMode = "numeric";
+  miles.min = "0";
+  miles.max = "2000";
+  miles.step = "1";
+  miles.className = "miles";
+  miles.value = entry.miles ?? "";
+  miles.dataset.key = `${date}:miles`;
+  miles.setAttribute("aria-label", `Miles ${name} ${shortDate(date)}`);
+  miles.addEventListener("change", async () => {
+    const text = miles.value.trim();
+    const value = text === "" ? null : Number(text);
+    if (value !== null && !(Number.isInteger(value) && value >= 0 && value <= 2000)) {
+      toast("Miles must be a whole number");
+      miles.value = entry.miles ?? "";
+      return;
+    }
+    if (value === (entry.miles ?? null)) return;
+    try {
+      await saveDay(date, { ...entry, miles: value });
+      toast("Saved");
+    } catch (err) {
+      if (err.message !== "login") toast(`Couldn't save: ${err.message}`);
+    }
+  });
+
   const hours = document.createElement("span");
   hours.className = "hours";
   const mins = dayMinutes(entry);
@@ -140,7 +168,7 @@ function dayRow(date, name, isToday) {
   else if (entry.in && entry.out) { li.classList.add("bad"); hours.textContent = "?"; }
   else hours.textContent = "–";
 
-  li.append(label, input("in", "Arrived"), input("out", "Left"), hours);
+  li.append(label, input("in", "Arrived"), input("out", "Left"), miles, hours);
   return li;
 }
 
@@ -148,7 +176,7 @@ function dayRow(date, name, isToday) {
 
 async function punch(key) {
   const today = isoDate(new Date());
-  const entry = days[today] ?? { in: null, out: null };
+  const entry = days[today] ?? { in: null, out: null, miles: null };
   const now = nowHHMM();
   const word = key === "in" ? "arrival" : "leaving time";
   if (entry[key] && entry[key] !== now &&
@@ -161,8 +189,8 @@ async function punch(key) {
   }
 }
 
-async function copyTotal() {
-  const text = $("total-value").textContent;
+async function copyTotal(button) {
+  const text = $(button.dataset.copy).textContent;
   try {
     await navigator.clipboard.writeText(text);
   } catch {
@@ -177,8 +205,9 @@ async function copyTotal() {
     document.execCommand("copy");
     ta.remove();
   }
-  $("total-hint").textContent = `Copied ${text}`;
-  setTimeout(() => ($("total-hint").textContent = "Tap to copy"), 2000);
+  const hint = button.querySelector(".total-hint");
+  hint.textContent = `Copied ${text}`;
+  setTimeout(() => (hint.textContent = "Tap to copy"), 2000);
 }
 
 function moveWeek(weeks) {
@@ -209,7 +238,7 @@ $("login-form").addEventListener("submit", async (e) => {
 
 $("arrive").addEventListener("click", () => punch("in"));
 $("leave").addEventListener("click", () => punch("out"));
-$("total").addEventListener("click", copyTotal);
+for (const id of ["total", "miles-total"]) $(id).addEventListener("click", () => copyTotal($(id)));
 $("prev").addEventListener("click", () => moveWeek(-1));
 $("next").addEventListener("click", () => moveWeek(1));
 $("this-week").addEventListener("click", () => {

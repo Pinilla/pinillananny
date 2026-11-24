@@ -31,6 +31,13 @@ export function roundHours(minutes) {
   return (Math.round((minutes / 60) * 100) / 100).toFixed(2);
 }
 
+/** Total miles for a list of day entries. Days without miles count as 0. */
+export function totalMiles(entries) {
+  let miles = 0;
+  for (const e of entries) if (Number.isInteger(e?.miles)) miles += e.miles;
+  return miles;
+}
+
 /** "YYYY-MM-DD" for a Date in the browser's local time zone. */
 export function isoDate(d) {
   const p = (n) => String(n).padStart(2, "0");

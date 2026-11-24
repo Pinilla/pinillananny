@@ -47,15 +47,22 @@
     </section>
 
     <section aria-label="Days">
-      <div class="day-head" aria-hidden="true"><span></span><span>Arrived</span><span>Left</span><span>Hours</span></div>
+      <div class="day-head" aria-hidden="true"><span></span><span>Arrived</span><span>Left</span><span>Miles</span><span>Hours</span></div>
       <ol id="days" class="days"></ol>
     </section>
 
-    <button id="total" class="total" aria-describedby="total-hint">
-      <span class="total-label">Week total</span>
-      <span id="total-value" class="total-value">0.00</span>
-      <span id="total-hint" class="total-hint">Tap to copy</span>
-    </button>
+    <div class="totals">
+      <button id="total" class="total" data-copy="total-value">
+        <span class="total-label">Hours this week</span>
+        <span id="total-value" class="total-value">0.00</span>
+        <span class="total-hint">Tap to copy</span>
+      </button>
+      <button id="miles-total" class="total" data-copy="miles-value">
+        <span class="total-label">Miles</span>
+        <span id="miles-value" class="total-value">0</span>
+        <span class="total-hint">Tap to copy</span>
+      </button>
+    </div>
     <p id="warning" class="error" role="alert"></p>
   </main>
 

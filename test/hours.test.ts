@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { toMinutes, dayMinutes, totalHours, roundHours, mondayOf, weekDates, isoDate } from "../public/hours.js";
+import { toMinutes, dayMinutes, totalHours, totalMiles, roundHours, mondayOf, weekDates, isoDate } from "../public/hours.js";
 import { checkDay } from "../src/days.ts";
 
 test("toMinutes reads HH:MM and rejects anything else", () => {
@@ -50,8 +50,10 @@ test("weeks start on Monday", () => {
 });
 
 test("checkDay accepts valid times and blanks", () => {
-  assert.deepEqual(checkDay("2026-11-24", { in: "08:00", out: "" }), { day: { in: "08:00", out: null } });
-  assert.deepEqual(checkDay("2026-11-24", { in: null, out: null }), { day: { in: null, out: null } });
+  assert.deepEqual(checkDay("2026-11-24", { in: "08:00", out: "" }), { day: { in: "08:00", out: null, miles: null } });
+  assert.deepEqual(checkDay("2026-11-24", { in: null, out: null }), { day: { in: null, out: null, miles: null } });
+  assert.deepEqual(checkDay("2026-11-24", { miles: 12 }), { day: { in: null, out: null, miles: 12 } });
+  assert.deepEqual(checkDay("2026-11-24", { miles: 0 }), { day: { in: null, out: null, miles: 0 } });
 });
 
 test("checkDay rejects bad dates and times", () => {
@@ -59,4 +61,10 @@ test("checkDay rejects bad dates and times", () => {
   assert.ok("error" in checkDay("2026-11-24", { in: "8am" }));
   assert.ok("error" in checkDay("2026-11-24", { in: 800 }));
   assert.ok("error" in checkDay("2026-11-24", null));
+  for (const miles of [-1, 2.5, "12", 2001]) assert.ok("error" in checkDay("2026-11-24", { miles }), String(miles));
+});
+
+test("totalMiles adds whole miles and skips blanks", () => {
+  assert.equal(totalMiles([{ miles: 12 }, { miles: null }, {}, { miles: 30 }, { miles: 0 }]), 42);
+  assert.equal(totalMiles([]), 0);
 });
