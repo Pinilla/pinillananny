@@ -35,6 +35,8 @@ npm test
 NANNY_PIN=1234 npm start          # http://127.0.0.1:3300
 ```
 
+The app needs no `npm install`, but the formatter does. `npm install` turns on a pre-commit hook, `.githooks/pre-commit`. It runs `npm run format`, stages the fixes in files you staged in full, and stops the commit if `npm run check-format` still fails.
+
 | Variable | Default | Meaning |
 |---|---|---|
 | `NANNY_PIN` | none, required | The login PIN |
